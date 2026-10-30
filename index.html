@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenAlternatives — open-source alternatives to expensive SaaS</title>
+<meta name="description" content="A curated, searchable directory of open-source alternatives to expensive SaaS tools, with a per-team cost-savings calculator. Browse by category, compare prices, and see what your team would save each month and year. Runs entirely in your browser: no backend, no account, no telemetry, zero dependencies.">
+<meta name="theme-color" content="#101014">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="favicon.svg">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img class="brand__icon" src="icon.svg" alt="" width="30" height="30">
+    <div class="brand__text">
+      <span class="brand__name">OpenAlternatives</span>
+      <span class="brand__tag">cheaper, owned by you</span>
+    </div>
+  </div>
+  <div class="topbar__actions">
+    <button class="btn" data-action="add-tool" title="Add a tool you use that is not in the list">Add your own</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <aside class="sidebar">
+    <section class="card">
+      <header class="card__head"><h2>Categories</h2></header>
+      <div id="category-list" class="chips"></div>
+    </section>
+
+    <section class="card">
+      <header class="card__head"><h2>Filters</h2></header>
+      <label class="field">
+        <span class="field__label">Search</span>
+        <input id="search" type="search" placeholder="git, CRM, kanban, password…" autocomplete="off">
+      </label>
+      <label class="field">
+        <span class="field__label">Max SaaS price <span id="price-label" class="field__hint">Any price</span></span>
+        <input id="price-cap" type="range" min="0" max="100" step="5" value="0">
+      </label>
+      <label class="field">
+        <span class="field__label">Sort</span>
+        <select id="sort-select">
+          <option value="default">Recommended</option>
+          <option value="name">Name A–Z</option>
+          <option value="savings">Biggest savings</option>
+          <option value="stars">Most starred</option>
+        </select>
+      </label>
+      <button class="btn btn--ghost" data-action="clear" title="Reset every filter">Clear filters</button>
+    </section>
+
+    <section class="card card--hero">
+      <p class="hero__kicker">The pitch</p>
+      <p>The average knowledge worker's SaaS stack runs <strong>$400–800/month</strong> across productivity, communication, and creative tools. Almost every one of those subscriptions has a genuinely good open-source stand-in. This directory is the map.</p>
+      <p class="hero__note">Everything here is free, self-hostable, and yours. No seat counts, no renewals, no vendor lock-in.</p>
+    </section>
+  </aside>
+
+  <section class="content">
+    <div class="content__head">
+      <h1>Open-source alternatives</h1>
+      <span id="count" class="count">0 tools</span>
+    </div>
+    <div id="tool-list" class="tool-list"></div>
+  </section>
+
+  <aside class="calculator">
+    <section class="card calc">
+      <header class="card__head"><h2>Savings calculator</h2></header>
+      <p class="calc__lead">Switch on the tools you would adopt. <strong id="calc-count">0</strong> selected.</p>
+
+      <label class="field">
+        <span class="field__label">Team size <span id="calc-team-label" class="field__hint">5</span></span>
+        <input id="calc-team" type="range" min="1" max="100" step="1" value="5">
+      </label>
+
+      <div class="calc__totals">
+        <div class="calc__total">
+          <span class="calc__total-label">Saves monthly</span>
+          <span id="calc-monthly" class="calc__total-value">$0</span>
+        </div>
+        <div class="calc__total calc__total--big">
+          <span class="calc__total-label">Saves per year</span>
+          <span id="calc-annual" class="calc__total-value">$0</span>
+        </div>
+      </div>
+
+      <div class="calc__sub">
+        <span>Your SaaS bill today: <strong id="calc-bill">$0</strong>/yr</span>
+        <span>per seat: <strong id="calc-per-seat">$0</strong>/yr</span>
+      </div>
+
+      <div id="calc-breakdown" class="calc-breakdown"></div>
+    </section>
+  </aside>
+
+</main>
+
+<footer class="statusbar">
+  <span>storage: <span id="storage-label">localStorage</span></span>
+  <span class="statusbar__sep">·</span>
+  <span>no backend · no account · no telemetry</span>
+  <span class="statusbar__spacer"></span>
+  <span class="statusbar__repo"><a href="https://github.com/0xshaikh/OpenAlternatives" target="_blank" rel="noopener">github.com/0xshaikh/OpenAlternatives</a></span>
+</footer>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal__card">
+    <header class="modal__head">
+      <h2 id="modal-title">Add your own tool</h2>
+      <button class="btn btn--ghost btn--sm" data-action="close-modal">Close</button>
+    </header>
+    <p class="modal__note">Saved to this browser's localStorage. The curated directory stays in the repo.</p>
+    <div class="modal__grid">
+      <label class="field">
+        <span class="field__label">Tool name *</span>
+        <input id="form-name" type="text" placeholder="MyOpenProject">
+      </label>
+      <label class="field">
+        <span class="field__label">Replaces</span>
+        <input id="form-replaces" type="text" placeholder="Asana">
+      </label>
+      <label class="field">
+        <span class="field__label">SaaS price $/seat/mo</span>
+        <input id="form-price" type="number" min="0" step="0.01" placeholder="10.99">
+      </label>
+      <label class="field">
+        <span class="field__label">Category</span>
+        <select id="form-cat"></select>
+      </label>
+      <label class="field">
+        <span class="field__label">Repo URL</span>
+        <input id="form-repo" type="url" placeholder="https://github.com/you/yourproject">
+      </label>
+      <label class="field">
+        <span class="field__label">Site URL</span>
+        <input id="form-site" type="url" placeholder="https://yourproject.dev">
+      </label>
+      <label class="field">
+        <span class="field__label">License</span>
+        <input id="form-license" type="text" placeholder="MIT">
+      </label>
+      <label class="field field--wide">
+        <span class="field__label">One-line description</span>
+        <input id="form-blurb" type="text" placeholder="What does it do?">
+      </label>
+    </div>
+    <p id="form-error" class="form-error" aria-live="polite"></p>
+    <div class="modal__actions">
+      <button class="btn btn--ghost" data-action="close-modal">Cancel</button>
+      <button class="btn btn--primary" data-action="submit-tool">Add tool</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/search.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
